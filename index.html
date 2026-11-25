@@ -32,7 +32,7 @@
   color-scheme:dark;
   --bg:#100e0d; --panel:#1a1715; --panel-2:#23201d; --fg:#f3eee7; --muted:#a59c91; --line:#2f2a26;
   --accent:#ff6b2c; --accent-ink:#1a0b04;
-  --c-pod:#ff922b; --c-biz:#fcc419; --c-rank:#b197fc; --c-health:#38d9a9; --c-fit:#a9e34b; --c-mind:#a5b4c4; --c-ads:#f06595; --c-brand:#22b8cf; --c-ugc:#e599f7; --c-ai:#5c7cfa; --c-motion:#f1f3f5; --c-yt:#ff6b6b; --c-li:#4dabf7; --c-vsl:#ffa8a8; --c-short:#ff922b; --c-aud:#a9e34b;
+  --c-pod:#ff922b; --c-biz:#fcc419; --c-rank:#b197fc; --c-health:#38d9a9; --c-fit:#a9e34b; --c-mind:#a5b4c4; --c-ads:#f06595; --c-brand:#22b8cf; --c-ugc:#e599f7; --c-ai:#5c7cfa; --c-motion:#f1f3f5; --c-yt:#ff6b6b; --c-li:#4dabf7; --c-vsl:#ffa8a8; --c-crime:#e03131; --c-space:#748ffc; --c-home:#d9a066; --c-life:#f783ac; --c-food:#ffa94d; --c-short:#ff922b; --c-aud:#a9e34b;
   --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -225,6 +225,7 @@ dialog.theater::backdrop{background:rgba(6,5,4,.92);backdrop-filter:blur(6px)}
 .th-top small{display:block;color:var(--muted);font:400 .85rem var(--f-body)}
 .th-stage{min-height:0;display:flex;align-items:center;justify-content:center}
 .th-stage video{max-width:100%;max-height:100%;border-radius:12px;background:#000}
+.th-stage iframe{width:min(100%,calc((100vh - 170px) * 16 / 9));aspect-ratio:16/9;border:0;border-radius:12px;background:#000}
 .th-nav{display:flex;justify-content:center;gap:10px}
 .icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;font-size:1.1rem;display:grid;place-items:center}
 .icon-btn:hover{border-color:var(--fg)}
@@ -391,7 +392,7 @@ dialog.theater::backdrop{background:rgba(6,5,4,.92);backdrop-filter:blur(6px)}
       <h3 id="th-title">Title<small id="th-sub"></small></h3>
       <button class="icon-btn" type="button" id="th-close" aria-label="Close player">✕</button>
     </div>
-    <div class="th-stage"><video id="th-video" controls playsinline></video></div>
+    <div class="th-stage"><video id="th-video" controls playsinline></video><iframe id="th-yt" hidden title="YouTube video player" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
     <div class="th-nav">
       <button class="icon-btn" type="button" id="th-prev" aria-label="Previous video">←</button>
       <span class="th-count" id="th-count"></span>
@@ -407,6 +408,11 @@ const CATS={
   biz:{name:"Business & creators",tag:"Business",c:"--c-biz",ar:"9/16",blurb:"Short-form for business coaches and creators: hook-first structure, kinetic captions and B-roll."},
   rank:{name:"Tier lists & rankings",tag:"Tier list",c:"--c-rank",ar:"9/16",blurb:"Interactive formats that drive comments: tier lists, “rank these”, smash-or-pass and “Seven-figure CEO ranks”."},
   health:{name:"Health, food & longevity",tag:"Health",c:"--c-health",ar:"9/16",blurb:"Doctor and chef interviews on peptides, visceral fat, nutrition and longevity."},
+  crime:{name:"True crime",tag:"True crime",c:"--c-crime",ar:"9/16",blurb:"Story-driven true-crime shorts for Charley Bourne and angiefiles: cold opens, pacing and tension."},
+  space:{name:"Space & science",tag:"Space",c:"--c-space",ar:"9/16",blurb:"YouTube Shorts cut from Astrum’s long-form space documentaries."},
+  home:{name:"Homestead & DIY",tag:"Homestead",c:"--c-home",ar:"9/16",blurb:"Shorts for Dalton Bertrand’s truck, pond and homestead YouTube channel."},
+  life:{name:"Family & lifestyle",tag:"Lifestyle",c:"--c-life",ar:"9/16",blurb:"Couple, family and lifestyle creators: Shi and Toni, Real Sophia Deso and Party of 4tv."},
+  food:{name:"Food & recipes",tag:"Food",c:"--c-food",ar:"9/16",blurb:"Recipe and drink videos for Tylergrowthlife."},
   fit:{name:"Fitness",tag:"Fitness",c:"--c-fit",ar:"9/16",blurb:"Podcast clips on training after 40 with Bryan Krahn, plus Thenx calisthenics challenges."},
   mind:{name:"Mindset & discipline",tag:"Mindset",c:"--c-mind",ar:"9/16",blurb:"Discipline stories from a 27-year military veteran turned coach, and a legacy series on health for high earners."},
   ads:{name:"Direct-response ads",tag:"Ad",c:"--c-ads",ar:"9/16",blurb:"Paid-social creatives: angle tests, story ads, offer ads, UGC product ads and creator hook variations."},
@@ -601,7 +607,64 @@ const CLIPS=[
  ["vsl", "Version 1 · Hook 3", "A/B test variant", "v/ab-v1h3.mp4", "v/ab-v1h3.jpg", 45, "", 1],
  ["vsl", "Version 2 · Hook 1", "A/B test variant", "v/ab-v2h1.mp4", "v/ab-v2h1.jpg", 45, "", 1],
  ["vsl", "Version 2 · Hook 2", "A/B test variant", "v/ab-v2h2.mp4", "v/ab-v2h2.jpg", 45, "", 1],
- ["vsl", "Version 2 · Hook 3", "A/B test variant", "v/ab-v2h3.mp4", "v/ab-v2h3.jpg", 45, "", 1]
+ ["vsl", "Version 2 · Hook 3", "A/B test variant", "v/ab-v2h3.mp4", "v/ab-v2h3.jpg", 45, "", 1],
+ ["crime", "The killer stayed inside the house for hours", "Charley Bourne True Crime", "v/tc-stayed.mp4", "v/tc-stayed.jpg", 90, "", 0],
+ ["crime", "The baby they found wasn’t really hers", "Charley Bourne True Crime", "v/tc-baby.mp4", "v/tc-baby.jpg", 90, "", 0],
+ ["crime", "He may not even know he was kidnapped", "Charley Bourne True Crime", "v/tc-kidnapped.mp4", "v/tc-kidnapped.jpg", 85, "", 0],
+ ["crime", "She vanished, but her shoes were still there", "Charley Bourne True Crime", "v/tc-shoes.mp4", "v/tc-shoes.jpg", 88, "", 0],
+ ["crime", "A burglary exposed a murder", "Charley Bourne True Crime", "v/tc-burglary.mp4", "v/tc-burglary.jpg", 83, "", 0],
+ ["crime", "Two girls vanished from the same place", "Charley Bourne True Crime", "v/tc-twogirls.mp4", "v/tc-twogirls.jpg", 90, "", 0],
+ ["crime", "Her camera captured the murder", "Charley Bourne True Crime", "v/tc-camera.mp4", "v/tc-camera.jpg", 88, "", 0],
+ ["crime", "Someone unscrewed every light bulb before she vanished", "Charley Bourne True Crime", "v/tc-bulbs.mp4", "v/tc-bulbs.jpg", 88, "", 0],
+ ["crime", "He woke up covered in blood", "angiefiles", "v/ag-blood.mp4", "v/ag-blood.jpg", 90, "", 0],
+ ["crime", "She cared more about going viral than being a mom", "angiefiles", "v/ag-viral.mp4", "v/ag-viral.jpg", 86, "", 0],
+ ["crime", "The teacher who saved her students", "angiefiles", "v/ag-teacher.mp4", "v/ag-teacher.jpg", 84, "", 0],
+ ["crime", "She says her father was the Zodiac killer", "angiefiles", "v/ag-zodiac.mp4", "v/ag-zodiac.jpg", 82, "", 0],
+ ["crime", "She chose murder over divorce", "angiefiles", "v/ag-divorce.mp4", "v/ag-divorce.jpg", 90, "", 0],
+ ["space", "Hyperion is basically a giant pile of rubble", "Astrum · YouTube Short", "v/sp-hyperion.mp4", "v/sp-hyperion.jpg", 87, "4/5", 0],
+ ["space", "This moon shocked a spacecraft", "Astrum · YouTube Short", "v/sp-shocked.mp4", "v/sp-shocked.jpg", 91, "4/5", 0],
+ ["space", "Black holes that shouldn’t exist", "Astrum · YouTube Short", "v/sp-blackholes.mp4", "v/sp-blackholes.jpg", 63, "", 0],
+ ["space", "This moon orbits Saturn backwards", "Astrum · YouTube Short", "v/sp-backwards.mp4", "v/sp-backwards.jpg", 90, "", 0],
+ ["space", "NASA wants to send nuclear rockets to Mars", "Astrum · YouTube Short", "v/sp-nuclear.mp4", "v/sp-nuclear.jpg", 82, "", 0],
+ ["space", "This space engine is weaker than a sheet of paper", "Astrum · YouTube Short", "v/sp-engine.mp4", "v/sp-engine.jpg", 88, "", 0],
+ ["space", "Scientists finally found the missing matter", "Astrum · YouTube Short", "v/sp-matter.mp4", "v/sp-matter.jpg", 91, "", 0],
+ ["home", "Why this zero-turn is worth every penny", "Dalton Bertrand · YouTube Short", "v/hs-zeroturn.mp4", "v/hs-zeroturn.jpg", 87, "", 0],
+ ["home", "I found a snapping turtle in my pond", "Dalton Bertrand · YouTube Short", "v/hs-turtle.mp4", "v/hs-turtle.jpg", 88, "", 0],
+ ["home", "People couldn’t believe how loud it was", "Dalton Bertrand · YouTube Short", "v/hs-horn.mp4", "v/hs-horn.jpg", 81, "", 0],
+ ["home", "My neighbor called the police… again", "Dalton Bertrand · YouTube Short", "v/hs-neighbor.mp4", "v/hs-neighbor.jpg", 82, "", 0],
+ ["home", "I lost almost 30 pounds in a month", "Dalton Bertrand · YouTube Short", "v/hs-carnivore.mp4", "v/hs-carnivore.jpg", 91, "", 0],
+ ["home", "I built a fish feeder for under $100", "Dalton Bertrand · YouTube Short", "v/hs-feeder.mp4", "v/hs-feeder.jpg", 86, "", 0],
+ ["home", "This machine cleared years of brush in minutes", "Dalton Bertrand · YouTube Short", "v/hs-brush.mp4", "v/hs-brush.jpg", 89, "", 0],
+ ["home", "I had no idea the rust was this bad", "Dalton Bertrand · YouTube Short", "v/hs-rust.mp4", "v/hs-rust.jpg", 78, "", 0],
+ ["life", "She means well… most of the time", "Shi and Toni", "v/lf-meanswell.mp4", "v/lf-meanswell.jpg", 72, "", 0],
+ ["life", "This is basically what our marriage looks like", "Shi and Toni", "v/lf-marriage.mp4", "v/lf-marriage.jpg", 159, "", 0],
+ ["life", "He came in so confident", "Shi and Toni", "v/lf-confident.mp4", "v/lf-confident.jpg", 93, "", 0],
+ ["life", "All of my friends are hot and scary", "Real Sophia Deso", "v/lf-friends.mp4", "v/lf-friends.jpg", 90, "", 0],
+ ["life", "The cleaning product I buy again and again", "Real Sophia Deso", "v/lf-cleaning.mp4", "v/lf-cleaning.jpg", 86, "", 0],
+ ["life", "The mini vacuum that changed everything", "Real Sophia Deso", "v/lf-vacuum.mp4", "v/lf-vacuum.jpg", 88, "", 0],
+ ["life", "Korean food mukbang", "Real Sophia Deso", "v/lf-mukbang.mp4", "v/lf-mukbang.jpg", 82, "", 0],
+ ["life", "Family vlog reel", "Party of 4tv", "v/lf-partyof4.mp4", "v/lf-partyof4.jpg", 86, "", 0],
+ ["food", "Pancake recipe", "Tylergrowthlife", "v/fd-pancake.mp4", "v/fd-pancake.jpg", 120, "", 1],
+ ["food", "Steak recipe", "Tylergrowthlife", "v/fd-steak.mp4", "v/fd-steak.jpg", 190, "", 0],
+ ["food", "Burger", "Tylergrowthlife", "v/fd-burger.mp4", "v/fd-burger.jpg", 120, "", 1],
+ ["food", "Buffalo chicken mac ’n’ cheese", "Tylergrowthlife", "v/fd-mac.mp4", "v/fd-mac.jpg", 65, "", 0],
+ ["food", "Strawberry lemon drop martini", "Tylergrowthlife · drinks series", "v/fd-martini.mp4", "v/fd-martini.jpg", 93, "", 0],
+ ["health", "Why do you procrastinate?", "Psychiatrist · ADHD education", "v/hl-procrastinate.mp4", "v/hl-procrastinate.jpg", 200, "", 0],
+ ["health", "Things I wish your psychiatrist told you", "Psychiatrist · ADHD education", "v/hl-psych.mp4", "v/hl-psych.jpg", 48, "", 0],
+ ["pod", "Chris Klemens", "Comedy podcast clip", "v/ck-pod1.mp4", "v/ck-pod1.jpg", 40, "", 0],
+ ["pod", "Chris Klemens", "Comedy podcast clip", "v/ck-pod2.mp4", "v/ck-pod2.jpg", 59, "", 0],
+ ["pod", "Chris Klemens", "Street interview", "v/ck-street.mp4", "v/ck-street.jpg", 22, "", 0],
+ ["yt", "Andrew Tate × Frankie Lee · Part 1", "The Frankie Lee Podcast · full episode", "yt:tRNFEQLL2R0", "https://i.ytimg.com/vi/tRNFEQLL2R0/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "Andrew Tate × Frankie Lee · Part 2", "The Frankie Lee Podcast · full episode", "yt:qPFCvswMDp8", "https://i.ytimg.com/vi/qPFCvswMDp8/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "How to come back after losing it all", "Elliot Wise · full episode", "yt:e0PIQZMVzxc", "https://i.ytimg.com/vi/e0PIQZMVzxc/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "Astral projection, aliens & the secret they don’t want you to know", "Sara Al Madani · full episode", "yt:7VnUALRTDz4", "https://i.ytimg.com/vi/7VnUALRTDz4/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "Marisa Peer: the secret to feeling worthy", "Full episode", "yt:OAKcTnwYN4c", "https://i.ytimg.com/vi/OAKcTnwYN4c/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "The AI expert: how to clone yourself in 1 hour", "Full episode", "yt:I_cN1B6lB5A", "https://i.ytimg.com/vi/I_cN1B6lB5A/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "Podcast episode", "YouTube", "yt:87xHIxAN8aI", "https://i.ytimg.com/vi/87xHIxAN8aI/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "Podcast episode", "YouTube", "yt:rRrb0il8Qjg", "https://i.ytimg.com/vi/rRrb0il8Qjg/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "How to get jacked (no-BS guide)", "Fitness YouTube · motion graphics", "yt:TNihLkapd9U", "https://i.ytimg.com/vi/TNihLkapd9U/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "How to gain muscle as fast as possible", "Fitness YouTube · motion graphics", "yt:JaDa2sDKB3Q", "https://i.ytimg.com/vi/JaDa2sDKB3Q/hqdefault.jpg", 0, "16/9", 0],
+ ["yt", "How to lose chest fat in 4 simple steps", "Fitness YouTube · motion graphics", "yt:aSWOAA6lcx8", "https://i.ytimg.com/vi/aSWOAA6lcx8/hqdefault.jpg", 0, "16/9", 0]
 ];
 const fmt=s=>Math.floor(s/60)+":"+String(Math.round(s%60)).padStart(2,"0");
 const PLAY='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5v13l11-6.5z"/></svg>';
@@ -634,10 +697,10 @@ function tile(i,inRail){
   el.innerHTML=`<div class="thumb" style="--ar:${shape}"><img alt="" loading="lazy" decoding="async"><span class="pbtn">${PLAY}</span><div class="meta"><span class="badge"></span><span class="dur"></span></div></div><div class="cap"><h3></h3><small></small></div>`;
   el.querySelector("img").src=B(p);
   el.querySelector(".badge").textContent=C.tag||C.name;
-  el.querySelector(".dur").textContent=(prev?"Preview · ":"")+fmt(secs);
+  el.querySelector(".dur").textContent=v.startsWith("yt:")?"YouTube":(prev?"Preview · ":"")+fmt(secs);
   el.querySelector("h3").textContent=t;el.querySelector("small").textContent=sub;
   const thumb=el.querySelector(".thumb");
-  if(fine&&!calm){
+  if(fine&&!calm&&!v.startsWith("yt:")){
     let pv=null,timer=null;
     el.addEventListener("mouseenter",()=>{timer=setTimeout(()=>{pv=document.createElement("video");pv.src=B(v);pv.muted=true;pv.loop=true;pv.playsInline=true;pv.preload="auto";thumb.insertBefore(pv,thumb.querySelector(".pbtn"));pv.play().catch(()=>{})},250)});
     el.addEventListener("mouseleave",()=>{clearTimeout(timer);if(pv){pv.pause();pv.remove();pv=null}});
@@ -695,10 +758,12 @@ function show(k){
   document.getElementById("th-title").firstChild.textContent=t;
   document.getElementById("th-sub").textContent=CATS[cat].name+" · "+sub;
   document.getElementById("th-count").textContent=(pos+1)+" / "+visible.length;
-  tv.src=B(v);tv.poster=B(p);tv.play().catch(()=>{});
+  const yt=document.getElementById("th-yt");
+  if(v.startsWith("yt:")){tv.pause();tv.removeAttribute("src");tv.hidden=true;yt.hidden=false;yt.src="https://www.youtube-nocookie.com/embed/"+v.slice(3)+"?autoplay=1&rel=0&playsinline=1"}
+  else{yt.hidden=true;yt.removeAttribute("src");tv.hidden=false;tv.src=B(v);tv.poster=B(p);tv.play().catch(()=>{})}
 }
 function openTheater(i){reel.pause();if(!th.open)th.showModal();show(Math.max(0,visible.indexOf(i)))}
-function closeTheater(){tv.pause();tv.removeAttribute("src");tv.load();if(th.open)th.close();if(!calm)reel.play().catch(()=>{})}
+function closeTheater(){const yt=document.getElementById("th-yt");yt.removeAttribute("src");yt.hidden=true;tv.hidden=false;tv.pause();tv.removeAttribute("src");tv.load();if(th.open)th.close();if(!calm)reel.play().catch(()=>{})}
 document.getElementById("th-close").onclick=closeTheater;
 document.getElementById("th-prev").onclick=()=>show(pos-1);
 document.getElementById("th-next").onclick=()=>show(pos+1);
